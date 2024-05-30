@@ -11,15 +11,14 @@ const router = express.Router();
 
 // home page
 router.get("/", asyncHandler(async (req,res,next) => {
-    const [messagesFromUser,allChats] = await Promise.all([
-        await Message.find({author:req.user}).populate("author",'text').exec(),
-        await Chat.find({}).exec()
-    ]);
+    const allChats = await Chat.find({}).exec();
     res.render("layout", {
-        title:"Messages",
-        messages: messagesFromUser,
+        title:"Home",
         user:req.user,
-        chats:allChats
+        chats:allChats,
+        chat:null,
+        isMember:null,
+        messages:null
     });
 }));
 // sign up page
@@ -75,16 +74,20 @@ router.get("/logout", (req, res, next) => {
 
 // render chat page
 router.get("/chat/:id", asyncHandler(async (req,res,next) => {
-    const [chat,messages] = await Promise.all([
+    const [chat,allChats,messages] = await Promise.all([
         Chat.findById(req.params.id).exec(),
+        Chat.find({}).exec(),
         Message.find({chat:req.params.id}).sort({timestamp:-1}).exec()
     ]);
     const isMember = chat && chat.members.includes(req.user._id)
-    res.render("chat", {
+    res.render("layout", {
+        title:"Chat",
+        user:req.user,
+        chats:allChats,
         chat:chat,
         isMember:isMember,
         messages:messages
-    })
+    });
 }));
 
 // join club page

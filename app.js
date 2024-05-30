@@ -3,11 +3,14 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const session = require('express-session');
+const path = require("path");
+const MongoStore = require('connect-mongo');
+
 const passport = require('passport');
 const LocalStrategy = require("passport-local").Strategy;
 const flash = require('connect-flash');
-const path = require("path");
 const bcrypt = require("bcryptjs");
+
 const User = require('./models/User');
 const indexRouter = require("./routes/index");
 
@@ -25,6 +28,10 @@ app.set("view engine", "ejs");
 
 app.use(session({ 
     secret: process.env.SECRET_KEY, 
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGO_URI,
+        collectionName: 'sessions'
+    }),
     resave: false, 
     saveUninitialized: true,
     cookie: { maxAge: 24 * 60 * 60 * 1000 }

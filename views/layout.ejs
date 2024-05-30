@@ -32,6 +32,9 @@
       </div>
     <div class="main-content">
         <!-- no chats opened if redirected -->
+        <% if (title == "Chat") { %>
+          <%- include("chat") %>
+        <% } %>
     </div>
   </div>
 </body>

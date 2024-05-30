@@ -57,13 +57,25 @@ router.post("/sign-up",[
 ]);
 
 // sign in page
-router.get("/login", (req,res,next) => res.render("login"))
+router.get("/login", (req,res,next) => res.render("login", {
+    error: req.flash('error')
+}))
 
 router.post("/login", passport.authenticate('local', {
     successRedirect:"/",
     failureRedirect:"/login",
     failureFlash:true
 }))
+
+// log out
+router.get("/logout", (req, res, next) => {
+    req.logout((err) => {
+      if (err) {
+        return next(err);
+      }
+      res.redirect("/");
+    });
+  });
 
 // join club page
 router.get("/join-club")

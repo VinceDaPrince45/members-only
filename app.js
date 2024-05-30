@@ -5,10 +5,11 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require("passport-local").Strategy;
-const User = require('./models/User');
-const indexRouter = require("./routes/index");
+const flash = require('connect-flash');
 const path = require("path");
 const bcrypt = require("bcryptjs");
+const User = require('./models/User');
+const indexRouter = require("./routes/index");
 
 mongoose.set("strictQuery", false);
 main().catch((err) => console.log(err));
@@ -22,8 +23,14 @@ app.set("views", path.join(__dirname, "views"));
 // Set EJS as the view engine
 app.set("view engine", "ejs");
 
-app.use(session({ secret: process.env.SECRET_KEY, resave: false, saveUninitialized: true }));
+app.use(session({ 
+    secret: process.env.SECRET_KEY, 
+    resave: false, 
+    saveUninitialized: true,
+    cookie: { maxAge: 24 * 60 * 60 * 1000 }
+ }));
 app.use(passport.session());
+app.use(flash());
 app.use(express.urlencoded({ extended: false }));
 passport.use(new LocalStrategy(
     async (username, password, done) => {

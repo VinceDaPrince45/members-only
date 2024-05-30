@@ -6,6 +6,11 @@
 </head>
 <body>
   <h1>Login</h1>
+  <% if (error && error.length > 0) { %>
+    <div class="flash-error" style="color:red;">
+      <%= error %>
+    </div>
+  <% } %>
   <form action="/login" method="post">
     <div>
       <label for="username">Username</label>
@@ -17,3 +22,4 @@
     </div>
     <button class="btn btn-primary" type="submit">Login</button>
   </form>
+</body>

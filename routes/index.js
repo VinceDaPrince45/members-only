@@ -18,7 +18,8 @@ router.get("/", asyncHandler(async (req,res,next) => {
         chats:allChats,
         chat:null,
         isMember:null,
-        messages:null
+        messages:null,
+        errors:null
     });
 }));
 // sign up page
@@ -86,17 +87,54 @@ router.get("/chat/:id", asyncHandler(async (req,res,next) => {
         chats:allChats,
         chat:chat,
         isMember:isMember,
-        messages:messages
+        messages:messages,
+        errors:null
     });
 }));
+
+// create new message page
+router.post("/chat/:id", [
+    // sanitize body
+    body("title").notEmpty().withMessage("Title is required"),
+    body("message").notEmpty().withMessage("Message is required"),
+    // verify errors
+    asyncHandler(async (req,res,next) => {
+        const [chat,allChats,messages] = await Promise.all([
+            Chat.findById(req.params.id).exec(),
+            Chat.find({}).exec(),
+            Message.find({chat:req.params.id}).sort({timestamp:-1}).exec()
+        ]);
+        const isMember = chat && chat.members.includes(req.user._id)
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.render("layout", {
+                title:"Chat",
+                user:req.user,
+                chats:allChats,
+                chat:chat,
+                isMember:isMember,
+                messages:messages,
+                errors:errors.array()
+            });
+            return;
+        }
+        const message = new Message({
+            title:req.body.title,
+            text:req.body.message,
+            author:req.user,
+            chat:chat,
+            timeStamp: Date.now
+        });
+        await message.save()
+        res.redirect(`/chat/${chat._id}`);
+    })
+    // add to messages and redirect back to chat page
+]);
 
 // join club page
 router.get("/join-club")
 router.post("/join-club")
 
-// create new message page
-router.get("/new-message")
-router.post("/new-message")
 
 // delete message page
 router.post("/delete-message/:id")

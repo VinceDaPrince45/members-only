@@ -21,9 +21,10 @@ router.get("/", asyncHandler(async (req,res,next) => {
     res.render("layout", {
         title:"Messages",
         messages: messages,
-        user:req.user
+        user:req.user,
+        chats:null
     });
-}))
+}));
 // sign up page
 router.get("/sign-up", (req,res,next) => {
     res.render("layout", {
@@ -57,9 +58,9 @@ router.post("/sign-up",[
 ]);
 
 // sign in page
-router.get("/login", res.render("layout", {
-    title:"Login"
-}));
+router.get("/login", (req,res,next) => res.render("layout", {
+    title:"Sign In"
+}))
 
 router.post("/login", passport.authenticate('local', {
     successRedirect:"/",

@@ -5,13 +5,15 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require("passport-local").Strategy;
-const indexRouter = require('./routes/index');
 const User = require('./models/User');
-const Schema = mongoose.Schema;
+const indexRouter = require("./routes/index");
+const path = require("path")
 
-mongoose.connect(process.env.MONGO_URI);
-const db = mongoose.connection;
-db.on("error",console.error.bind(console,"mongo connection error"));
+mongoose.set("strictQuery", false);
+main().catch((err) => console.log(err));
+async function main() {
+  await mongoose.connect(process.env.MONGO_URI);
+}
 
 const app = express();
 // Set the views directory
@@ -51,6 +53,6 @@ passport.deserializeUser(async (id,done) => {
     }
 });
 
-app.get("/", (req, res) => res.render("index"));
+app.use("/", indexRouter);
 
 app.listen(3000, () => console.log("app listening on port 3000!"));

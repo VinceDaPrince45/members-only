@@ -7,7 +7,8 @@ const passport = require('passport');
 const LocalStrategy = require("passport-local").Strategy;
 const User = require('./models/User');
 const indexRouter = require("./routes/index");
-const path = require("path")
+const path = require("path");
+const bcrypt = require("bcryptjs");
 
 mongoose.set("strictQuery", false);
 main().catch((err) => console.log(err));

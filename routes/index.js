@@ -5,6 +5,7 @@ const asyncHandler = require('express-async-handler');
 const User = require("../models/User");
 const Chat = require("../models/Chat");
 const Message = require("../models/Message");
+const bcrypt = require("bcryptjs");
 
 const router = express.Router();
 
@@ -27,29 +28,27 @@ router.get("/", asyncHandler(async (req,res,next) => {
 }));
 // sign up page
 router.get("/sign-up", (req,res,next) => {
-    res.render("layout", {
-        title:"Sign Up",
-        errors:null
-    });
+    res.render("sign-up");
 });
 
 router.post("/sign-up",[
     // body verification and sanitization
+    body("firstName").notEmpty().withMessage("First name is required"),
+    body("lastName").notEmpty().withMessage("Last name is required"),
+    body("username").notEmpty().withMessage("Username is required"),
+    body("password").isLength({ min: 5 }).withMessage('Password must be at least 5 characters long'),
+
     // bcrypt the password
     asyncHandler(async (req,res,next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.render("layout", {
-                title:"Sign Up",
-                errors:errors.array()
-            })
+            return res.render("sign-up");
         }
-        const {firstname,lastname,username,password} = req.body;
-        const hashpw = await bcrypt.hash(password,10);
+        const hashpw = await bcrypt.hash(req.body.password,10);
         const user = new User({
-            firstName:firstname,
-            lastName:lastname,
-            username:username,
+            firstName:req.body.firstName,
+            lastName:req.body.lastName,
+            username:req.body.username,
             password: hashpw
         });
         await user.save();
@@ -58,9 +57,7 @@ router.post("/sign-up",[
 ]);
 
 // sign in page
-router.get("/login", (req,res,next) => res.render("layout", {
-    title:"Sign In"
-}))
+router.get("/login", (req,res,next) => res.render("login"))
 
 router.post("/login", passport.authenticate('local', {
     successRedirect:"/",

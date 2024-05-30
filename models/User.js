@@ -7,7 +7,6 @@ const UserSchema = new Schema({
     lastName: { type: String, required:true },
     username: { type: String, required: true },
     password: {type: String, require: true },
-    membershipStatus: {type: Boolean, default: false},
     admin: {type: Boolean, default: false }
 });
 

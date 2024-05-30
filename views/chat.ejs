@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= chat.name %></title>
+</head>
+<body>
+    <ul>
+        <% if (messages) { %>
+            <% messages.forEach((message) => { %>
+                <li>
+                    <%= message.text %> at <%= message.timestamp_formatted %>
+                    <!-- need to check if current user has permission to view and if not, have sidebar on side to enter password -->
+                </li>
+            <% }) %>
+        <% } else { %>
+            <p>No messages</p>
+        <% } %>
+    </ul>
+</body>
+</html>

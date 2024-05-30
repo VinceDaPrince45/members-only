@@ -9,21 +9,17 @@ const bcrypt = require("bcryptjs");
 
 const router = express.Router();
 
-async function isMember(req,res,next) {
-    const chat = await Chat.findById(req.params.chatId);
-    if (chat && chat.members.includes(req.user._id)) {
-        return next()
-    }
-    return res.redirect(`/chat/${req.params.chatId}/join`);
-}
 // home page
 router.get("/", asyncHandler(async (req,res,next) => {
-    const messages = await Message.find({}).populate("author",'firstname lastname').exec();
+    const [messagesFromUser,allChats] = await Promise.all([
+        await Message.find({author:req.user}).populate("author",'text').exec(),
+        await Chat.find({}).exec()
+    ]);
     res.render("layout", {
         title:"Messages",
-        messages: messages,
+        messages: messagesFromUser,
         user:req.user,
-        chats:null
+        chats:allChats
     });
 }));
 // sign up page
@@ -76,6 +72,20 @@ router.get("/logout", (req, res, next) => {
       res.redirect("/");
     });
   });
+
+// render chat page
+router.get("/chat/:id", asyncHandler(async (req,res,next) => {
+    const [chat,messages] = await Promise.all([
+        Chat.findById(req.params.id).exec(),
+        Message.find({chat:req.params.id}).sort({timestamp:-1}).exec()
+    ]);
+    const isMember = chat && chat.members.includes(req.user._id)
+    res.render("chat", {
+        chat:chat,
+        isMember:isMember,
+        messages:messages
+    })
+}));
 
 // join club page
 router.get("/join-club")

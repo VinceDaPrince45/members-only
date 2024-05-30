@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="sidebar-menu">
+        <ul>
+          <% if (user) { %>
+            <li><a href="/logout">Log Out</a></li>
+            <li><a href="/profile">Profile</a></li>
+          <% } else { %>
+            <li><a href="/login">Sign In</a></li>
+            <li><a href="/register">Register</a></li>
+          <% } %>
+        </ul>
+        <h3>Chats</h3>
+        <ul>
+          <% if (chats && chats.length > 0) { %>
+            <% chats.forEach(chat => { %>
+              <li><a href="/chat/<%= chat._id %>"><%= chat.name %></a></li>
+            <% }) %>
+          <% } else { %>
+            <li>No chats available</li>
+          <% } %>
+        </ul>
+      </div>
+    <div class="main-content">
+        <!-- no chats opened if redirected -->
+    </div>
+  </div>
+</body>
+</html>

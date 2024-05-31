@@ -94,7 +94,7 @@ router.get("/chat/:id", asyncHandler(async (req,res,next) => {
     });
 }));
 
-// create new message page
+// create new message/join chat/deletion
 router.post("/chat/:id", [
     // General validation for formType
     body("formType").notEmpty().withMessage("Form type is required"),
@@ -155,13 +155,12 @@ router.post("/chat/:id", [
                     passwordErrors:[{msg: "Incorrect password"}]
                 });
             }
+        } else if (formType == "deleteForm") {
+            const message = await Message.findByIdAndDelete(req.body.deleteMessage);
+            res.redirect(`/chat/${req.params.id}`);
         }
     })
     // add to messages and redirect back to chat page
 ]);
-
-// delete message page
-router.post("/delete-message/:id")
-
 
 module.exports = router;

@@ -14,12 +14,16 @@
                     <small>
                         <%= message.timestamp_formatted %>
                     </small>
+                    <p>
+                        <span class="message-title"><strong><%= message.title %>:</strong></span> <%= message.text %>
+                    </p>
                 </div>
-                <p>
-                    <span class="message-title"><strong><%= message.title %>:</strong></span> <%= message.text %>
-                </p>
                 <% if (user.admin) { %>
-                    <button class="delete-btn">Delete</button>
+                    <form action="/chat/<%= chat._id %>" method="post">
+                        <input type="hidden" name="formType" value="deleteForm">
+                        <input id="<%= message._id %>" class="form-control" type="hidden" name="deleteMessage" value="<%= message._id %>">
+                        <button class="delete-btn" type="submit" >Delete</button>
+                    </form>
                 <% } %>
             </div>
         <% }) %>

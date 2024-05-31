@@ -67,6 +67,11 @@ textarea {
     display:inline-block;
 }
 
+.message {
+    display:flex;
+    flex-direction: row;
+}
+
 .message:hover {
     background-color: gainsboro;
 }

@@ -12,7 +12,6 @@ const router = express.Router();
 // home page
 router.get("/", asyncHandler(async (req,res,next) => {
     const allChats = await Chat.find({}).exec();
-    console.log(req.user);
     res.render("layout", {
         title:"Home",
         user:req.user,
@@ -34,6 +33,7 @@ router.post("/sign-up",[
     body("lastName").notEmpty().withMessage("Last name is required"),
     body("username").notEmpty().withMessage("Username is required"),
     body("password").isLength({ min: 5 }).withMessage('Password must be at least 5 characters long'),
+    body("admin").escape(),
 
     // bcrypt the password
     asyncHandler(async (req,res,next) => {
@@ -46,7 +46,8 @@ router.post("/sign-up",[
             firstName:req.body.firstName,
             lastName:req.body.lastName,
             username:req.body.username,
-            password: hashpw
+            password: hashpw,
+            admin:req.body.admin
         });
         await user.save();
         res.redirect("/");
@@ -99,8 +100,8 @@ router.post("/chat/:id", [
     // General validation for formType
     body("formType").notEmpty().withMessage("Form type is required"),
     // Conditional validation for message form
-    body("title").if(body("formType").equals("messageForm")).notEmpty().withMessage("Title is required"),
-    body("message").if(body("formType").equals("messageForm")).notEmpty().withMessage("Message is required"),
+    body("title").if(body("formType").equals("messageForm")).notEmpty().withMessage("Title is required").trim().escape(),
+    body("message").if(body("formType").equals("messageForm")).notEmpty().withMessage("Message is required").trim().escape(),
     // Conditional validation for password form
     body("password").if(body("formType").equals("passwordForm")).notEmpty().withMessage("Password is required"),
     // verify errors

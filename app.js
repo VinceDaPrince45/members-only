@@ -21,6 +21,7 @@ async function main() {
 }
 
 const app = express();
+app.use(express.static(path.join(__dirname, 'public')));
 // Set the views directory
 app.set("views", path.join(__dirname, "views"));
 // Set EJS as the view engine

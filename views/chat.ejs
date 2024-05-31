@@ -1,47 +1,44 @@
-<div>
-    <h3><strong><%= chat.name %> Messages: </strong></h3>
-    <ul>
-        <% if (messages) { %>
-            <% messages.forEach(message => { %>
-                <div class="message">
-                    <div class="message-info">
-                        <small>
-                            <% if (isMember) { %>
-                                <%= message.author.username %>
-                            <% } else { %>
-                                Anonymous
-                            <% } %>
-                        </small>
-                        <small>
-                            <%= message.timestamp_formatted %>
-                        </small>
-                    </div>
-                    <p>
-                        <span class="message-title"><%= message.title %>:</span> <%= message.text %>
-                    </p>
+<h3 class="chat-title"><strong><%= chat.name %> Messages: </strong></h3>
+<ul class="messages">
+    <% if (messages) { %>
+        <% messages.forEach(message => { %>
+            <div class="message">
+                <div class="message-info">
+                    <small><strong>
+                        <% if (isMember) { %>
+                            <%= message.author.username %>
+                        <% } else { %>
+                            Anonymous
+                        <% } %>
+                    </strong></small>
+                    <small>
+                        <%= message.timestamp_formatted %>
+                    </small>
                 </div>
-            <% }) %>
-        <% } else { %>
-            <p>No messages</p>
-        <% } %>
-        <form action="/chat/<%= chat._id %>" method="post">
-            <input type="hidden" name="formType" value="messageForm">
-            <div>
-                <label for="title">Title: </label>
-                <input type="text" id="title" name="title" placeholder="Type title here">
+                <p>
+                    <span class="message-title"><strong><%= message.title %>:</strong></span> <%= message.text %>
+                </p>
+                <% if (user.admin) { %>
+                    <button class="delete-btn">Delete</button>
+                <% } %>
             </div>
-            <div>
-                <label for="message">Text: </label>
-                <textarea type="text" id="message" name="message" placeholder="Type message here"></textarea>
-            </div>
-            <button class="btn btn-primary" type="submit">Send</button>
-        </form>
-        <% if (messageErrors) { %>
-            <ul>
-                <% messageErrors.forEach(function(error) { %>
-                    <li style="color:red;"><%= error.msg %></li>
-                <% }); %>
-            </ul>
-        <% } %>
-    </ul>
-</div>
+        <% }) %>
+    <% } else { %>
+        <p>No messages</p>
+    <% } %>
+    <form action="/chat/<%= chat._id %>" method="post">
+        <input type="hidden" name="formType" value="messageForm">
+        <div class="messageForm">
+            <input type="text" id="title" name="title" placeholder="Type title here">
+            <textarea type="text" id="message" name="message" rows="4" placeholder="Type message here"></textarea>
+        </div>
+        <button class="btn btn-primary" type="submit">Send</button>
+    </form>
+    <% if (messageErrors) { %>
+        <ul>
+            <% messageErrors.forEach(function(error) { %>
+                <li style="color:red;"><%= error.msg %></li>
+            <% }); %>
+        </ul>
+    <% } %>
+</ul>

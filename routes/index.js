@@ -12,6 +12,7 @@ const router = express.Router();
 // home page
 router.get("/", asyncHandler(async (req,res,next) => {
     const allChats = await Chat.find({}).exec();
+    console.log(req.user);
     res.render("layout", {
         title:"Home",
         user:req.user,

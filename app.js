@@ -10,6 +10,7 @@ const passport = require('passport');
 const LocalStrategy = require("passport-local").Strategy;
 const flash = require('connect-flash');
 const bcrypt = require("bcryptjs");
+const compression = require("compression");
 
 const User = require('./models/User');
 const indexRouter = require("./routes/index");
@@ -21,12 +22,21 @@ async function main() {
 }
 
 const app = express();
+
+app.use(compression()); // Compress all routes
 app.use(express.static(path.join(__dirname, 'public')));
 // Set the views directory
 app.set("views", path.join(__dirname, "views"));
 // Set EJS as the view engine
 app.set("view engine", "ejs");
 
+const RateLimit = require("express-rate-limit");
+const limiter = RateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 50,
+});
+// Apply rate limiter to all requests
+app.use(limiter);
 app.use(session({ 
     secret: process.env.SECRET_KEY, 
     store: MongoStore.create({

@@ -2,11 +2,24 @@
     <h3><strong><%= chat.name %> Messages: </strong></h3>
     <ul>
         <% if (messages) { %>
-            <% messages.forEach((message) => { %>
-                <li>
-                    <%= message.text %> at <%= message.timestamp_formatted %>
-                    <!-- need to check if current user has permission to view and if not, have sidebar on side to enter password -->
-                </li>
+            <% messages.forEach(message => { %>
+                <div class="message">
+                    <div class="message-info">
+                        <small>
+                            <% if (isMember) { %>
+                                <%= message.author.username %>
+                            <% } else { %>
+                                Anonymous
+                            <% } %>
+                        </small>
+                        <small>
+                            <%= message.timestamp_formatted %>
+                        </small>
+                    </div>
+                    <p>
+                        <span class="message-title"><%= message.title %>:</span> <%= message.text %>
+                    </p>
+                </div>
             <% }) %>
         <% } else { %>
             <p>No messages</p>

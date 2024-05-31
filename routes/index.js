@@ -78,7 +78,7 @@ router.get("/chat/:id", asyncHandler(async (req,res,next) => {
     const [chat,allChats,messages] = await Promise.all([
         Chat.findById(req.params.id).exec(),
         Chat.find({}).exec(),
-        Message.find({chat:req.params.id}).sort({timestamp:1}).exec()
+        Message.find({chat:req.params.id}).populate("author").sort({timestamp:1}).exec()
     ]);
     const isMember = chat && chat.members.includes(req.user._id)
     res.render("layout", {
@@ -107,7 +107,7 @@ router.post("/chat/:id", [
         const [chat,allChats,messages] = await Promise.all([
             Chat.findById(req.params.id).exec(),
             Chat.find({}).exec(),
-            Message.find({chat:req.params.id}).sort({timestamp:1}).exec()
+            Message.find({chat:req.params.id}).populate("author").sort({timestamp:1}).exec()
         ]);
         const isMember = chat && chat.members.includes(req.user._id)
         const errors = validationResult(req);
@@ -158,11 +158,6 @@ router.post("/chat/:id", [
     })
     // add to messages and redirect back to chat page
 ]);
-
-// join club page
-router.get("/join-club")
-router.post("/join-club")
-
 
 // delete message page
 router.post("/delete-message/:id")

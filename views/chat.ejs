@@ -30,19 +30,17 @@
     <% } else { %>
         <p>No messages</p>
     <% } %>
-    <form action="/chat/<%= chat._id %>" method="post">
-        <input type="hidden" name="formType" value="messageForm">
-        <div class="messageForm">
-            <input type="text" id="title" name="title" placeholder="Type title here">
-            <textarea type="text" id="message" name="message" rows="4" placeholder="Type message here"></textarea>
-        </div>
-        <button class="btn btn-primary" type="submit">Send</button>
-    </form>
-    <% if (messageErrors) { %>
-        <ul>
-            <% messageErrors.forEach(function(error) { %>
-                <li style="color:red;"><%= error.msg %></li>
-            <% }); %>
-        </ul>
-    <% } %>
 </ul>
+<form action="/chat/<%= chat._id %>" method="post">
+    <input type="hidden" name="formType" value="messageForm">
+    <div class="messageForm">
+        <input type="text" id="title" name="title" placeholder="Type title here">
+        <textarea type="text" id="message" name="message" rows="4" placeholder="Type message here"></textarea>
+    </div>
+    <button class="btn btn-primary" type="submit">Send</button>
+</form>
+<% if (messageErrors) { %>
+    <% messageErrors.forEach(function(error) { %>
+        <div style="color:red;"><%= error.msg %></div>
+    <% }); %>
+<% } %>

@@ -11,9 +11,8 @@
     <div class="sidebar-menu">
         <ul>
           <% if (user) { %>
-            <li>Welcome <%= user.username %></li>
+            <h2>Welcome <%= user.username %></h2>
             <li><a href="/logout">Log Out</a></li>
-            <li><a href="/profile">Profile</a></li>
           <% } else { %>
             <li><a href="/login">Log In</a></li>
             <li><a href="/sign-up">Register</a></li>
@@ -34,6 +33,8 @@
       <!-- no chats opened if redirected -->
       <% if (title == "Chat") { %>
         <%- include("chat") %>
+      <% } else { %>
+        <div style="text-align: center;">No chat chosen</div>
       <% } %>
     </div>
     <div class="chat-login">

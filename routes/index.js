@@ -125,7 +125,6 @@ router.post("/chat/:id", [
         if (!errors.isEmpty()) {
             const passwordErrors = errors.array().filter(error => error.path === 'password');
             const messageOrTitleErrors = errors.array().filter(error => error.path === 'message' || error.path === 'title');
-            console.log(passwordErrors);
             res.render("layout", {
                 title:"Chat",
                 user:req.user,

@@ -103,7 +103,16 @@ router.post("/chat/:id", [
     body("title").if(body("formType").equals("messageForm")).notEmpty().withMessage("Title is required").trim().escape(),
     body("message").if(body("formType").equals("messageForm")).notEmpty().withMessage("Message is required").trim().escape(),
     // Conditional validation for password form
-    body("password").if(body("formType").equals("passwordForm")).notEmpty().withMessage("Password is required"),
+    body("password").if(body("formType").equals("passwordForm")).notEmpty().withMessage("Password is required").custom(async (value, { req }) => {
+            const chat = await Chat.findById(req.params.id);
+            if (!chat) {
+                throw new Error('Chat not found');
+            }
+            if (value !== chat.password) {
+                throw new Error('Incorrect password');
+            }
+            return true;
+        }).withMessage("Incorrect password"),
     // verify errors
     asyncHandler(async (req,res,next) => {
         const [chat,allChats,messages] = await Promise.all([
@@ -114,6 +123,9 @@ router.post("/chat/:id", [
         const isMember = chat && chat.members.includes(req.user._id)
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
+            const passwordErrors = errors.array().filter(error => error.path === 'password');
+            const messageOrTitleErrors = errors.array().filter(error => error.path === 'message' || error.path === 'title');
+            console.log(passwordErrors);
             res.render("layout", {
                 title:"Chat",
                 user:req.user,
@@ -121,8 +133,8 @@ router.post("/chat/:id", [
                 chat:chat,
                 isMember:isMember,
                 messages:messages,
-                messageErrors:errors.array(),
-                passwordErrors:null
+                messageErrors:messageOrTitleErrors,
+                passwordErrors:passwordErrors[0]
             });
             return;
         }
@@ -137,6 +149,7 @@ router.post("/chat/:id", [
             });
             await message.save()
             res.redirect(`/chat/${chat._id}`);
+            return;
         } else if (formType == 'passwordForm') {
             const password = req.body.password;
             if (password == chat.password) {
@@ -144,21 +157,12 @@ router.post("/chat/:id", [
                 chat.members.push(req.user._id);
                 await chat.save();
                 res.redirect(`/chat/${chat._id}`);
-            } else {
-                res.render("layout", {
-                    title:"Chat",
-                    user:req.user,
-                    chats:allChats,
-                    chat:chat,
-                    isMember:isMember,
-                    messages:messages,
-                    messageErrors:null,
-                    passwordErrors:[{msg: "Incorrect password"}]
-                });
+                return;
             }
         } else if (formType == "deleteForm") {
             const message = await Message.findByIdAndDelete(req.body.deleteMessage);
             res.redirect(`/chat/${req.params.id}`);
+            return;
         }
     })
     // add to messages and redirect back to chat page

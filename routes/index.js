@@ -19,7 +19,7 @@ router.get("/", asyncHandler(async (req,res,next) => {
         chat:null,
         isMember:null,
         messages:null,
-        errors:null
+        messageErrors:null
     });
 }));
 // sign up page
@@ -78,7 +78,7 @@ router.get("/chat/:id", asyncHandler(async (req,res,next) => {
     const [chat,allChats,messages] = await Promise.all([
         Chat.findById(req.params.id).exec(),
         Chat.find({}).exec(),
-        Message.find({chat:req.params.id}).sort({timestamp:-1}).exec()
+        Message.find({chat:req.params.id}).sort({timestamp:1}).exec()
     ]);
     const isMember = chat && chat.members.includes(req.user._id)
     res.render("layout", {
@@ -88,21 +88,26 @@ router.get("/chat/:id", asyncHandler(async (req,res,next) => {
         chat:chat,
         isMember:isMember,
         messages:messages,
-        errors:null
+        messageErrors:null,
+        passwordErrors:null
     });
 }));
 
 // create new message page
 router.post("/chat/:id", [
-    // sanitize body
-    body("title").notEmpty().withMessage("Title is required"),
-    body("message").notEmpty().withMessage("Message is required"),
+    // General validation for formType
+    body("formType").notEmpty().withMessage("Form type is required"),
+    // Conditional validation for message form
+    body("title").if(body("formType").equals("messageForm")).notEmpty().withMessage("Title is required"),
+    body("message").if(body("formType").equals("messageForm")).notEmpty().withMessage("Message is required"),
+    // Conditional validation for password form
+    body("password").if(body("formType").equals("passwordForm")).notEmpty().withMessage("Password is required"),
     // verify errors
     asyncHandler(async (req,res,next) => {
         const [chat,allChats,messages] = await Promise.all([
             Chat.findById(req.params.id).exec(),
             Chat.find({}).exec(),
-            Message.find({chat:req.params.id}).sort({timestamp:-1}).exec()
+            Message.find({chat:req.params.id}).sort({timestamp:1}).exec()
         ]);
         const isMember = chat && chat.members.includes(req.user._id)
         const errors = validationResult(req);
@@ -114,19 +119,42 @@ router.post("/chat/:id", [
                 chat:chat,
                 isMember:isMember,
                 messages:messages,
-                errors:errors.array()
+                messageErrors:errors.array(),
+                passwordErrors:null
             });
             return;
         }
-        const message = new Message({
-            title:req.body.title,
-            text:req.body.message,
-            author:req.user,
-            chat:chat,
-            timeStamp: Date.now
-        });
-        await message.save()
-        res.redirect(`/chat/${chat._id}`);
+        const formType = req.body.formType;
+        if (formType == 'messageForm') {
+            const message = new Message({
+                title:req.body.title,
+                text:req.body.message,
+                author:req.user,
+                chat:chat,
+                timeStamp: Date.now
+            });
+            await message.save()
+            res.redirect(`/chat/${chat._id}`);
+        } else if (formType == 'passwordForm') {
+            const password = req.body.password;
+            if (password == chat.password) {
+                // set isMember true
+                chat.members.push(req.user._id);
+                await chat.save();
+                res.redirect(`/chat/${chat._id}`);
+            } else {
+                res.render("layout", {
+                    title:"Chat",
+                    user:req.user,
+                    chats:allChats,
+                    chat:chat,
+                    isMember:isMember,
+                    messages:messages,
+                    messageErrors:null,
+                    passwordErrors:[{msg: "Incorrect password"}]
+                });
+            }
+        }
     })
     // add to messages and redirect back to chat page
 ]);

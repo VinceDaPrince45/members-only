@@ -164,7 +164,28 @@ router.post("/chat/:id", [
             return;
         }
     })
-    // add to messages and redirect back to chat page
+]);
+
+// new chat page
+router.get("/new-chat",(req,res,next) => {
+    res.render("new-chat",{errors:null});
+});
+router.post("/new-chat", [
+    body("groupName").notEmpty().withMessage("Group name is required").trim().escape(),
+    body("password").notEmpty().withMessage("Password is required").trim().escape(),
+    asyncHandler(async (req,res,next) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.render("new-chat",{errors:errors.array()});
+        }
+        const chat = new Chat({
+            name:req.body.groupName,
+            password:req.body.password,
+            members:[req.user._id]
+        })
+        await chat.save();
+        res.redirect(`/chat/${chat._id}`);
+    })
 ]);
 
 module.exports = router;

@@ -27,6 +27,9 @@
           <% } else { %>
             <li>No chats available</li>
           <% } %>
+          <% if (user) { %>
+            <li><a href="/new-chat">+ Add Chat</a></li>
+          <% } %>
         </ul>
       </div>
     <div class="chat">

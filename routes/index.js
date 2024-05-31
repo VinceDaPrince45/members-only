@@ -24,7 +24,7 @@ router.get("/", asyncHandler(async (req,res,next) => {
 }));
 // sign up page
 router.get("/sign-up", (req,res,next) => {
-    res.render("sign-up");
+    res.render("sign-up",{errors:null});
 });
 
 router.post("/sign-up",[
@@ -39,15 +39,17 @@ router.post("/sign-up",[
     asyncHandler(async (req,res,next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.render("sign-up");
+            return res.render("sign-up",{errors:errors.array()});
         }
         const hashpw = await bcrypt.hash(req.body.password,10);
+        var isAdmin = false;
+        if (req.body.admin) isAdmin = true;
         const user = new User({
             firstName:req.body.firstName,
             lastName:req.body.lastName,
             username:req.body.username,
             password: hashpw,
-            admin:req.body.admin
+            admin:isAdmin
         });
         await user.save();
         res.redirect("/");
